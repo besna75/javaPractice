@@ -14,21 +14,21 @@
 
 	try {		
 		if (session.getAttribute("memId") == null) { /* 세션 체크 결과 로그인 전이면 : 1)로그인 전 화면 수행  2) 쿠키 체크 */
-						/* 쿠키 체크 */
-						Cookie[] coo = request.getCookies(); //배열로 쿠키 받기
-						String passwd = null, auto = null;
-						id = null;// 지역변수는 사용되기 전에 초기화 해주어야 함
-						for (Cookie d : coo) {
-							if (d.getName().equals("cooId"))
-								id = d.getValue();
-							if (d.getName().equals("cooPw"))
-								passwd = d.getValue();
-							if (d.getName().equals("cooAuto"))
-								auto = d.getValue();
-						}
-						if (id != null && passwd != null && auto != null) { //쿠키값을 확인 →쿠키값이 있으면 loginPro.jsp로 정보 전송
-							response.sendRedirect("loginPro.jsp");
-						}
+				/* 쿠키 체크 */
+				Cookie[] coo = request.getCookies(); //배열로 쿠키 받기
+				String passwd = null, auto = null;
+				id = null;// 지역변수는 사용되기 전에 초기화 해주어야 함
+				for (Cookie d : coo) {
+					if (d.getName().equals("cooId"))
+						id = d.getValue();
+					if (d.getName().equals("cooPw"))
+						passwd = d.getValue();
+					if (d.getName().equals("cooAuto"))
+						auto = d.getValue();
+				}
+				if (id != null && passwd != null && auto != null) { //쿠키값을 확인 →쿠키값이 있으면 loginPro.jsp로 정보 전송
+					response.sendRedirect("loginPro.jsp");
+				}
 %>
 <script language="javascript">
 <!--
@@ -100,14 +100,14 @@ function focusIt()
 					<%
 						if(grade.equals("admin")){/* if (grade.equals("admin"))*/
 					%>
-							<input type="button" value="가입 회원 검색" onclick="javascript:window.location='member.jsp/">
+							<input type="button" value="전체 회원 보기" onclick="javascript:window.location='member.jsp'">
 					<%
 						}else {		
 					%>
 						<!-- nothing -->
 					<%
 						}
-					%>
+					%>			
 				</form></td>
 		</tr>
 		<tr>			

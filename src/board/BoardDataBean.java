@@ -4,22 +4,24 @@ import java.sql.Timestamp;
 public class BoardDataBean{
 	/*﻿ 자바빈의 프로퍼티(멤버변수) 선언 */ 
 
-	private int num;  // 프로퍼티란 값을 저장하기 위한 필드로 접근제어 private로 선언함 
-	private String writer;
-	private String subject;
-	private String email;
-	private String content;
-	private String passwd;
-	private Timestamp reg_date;
-	private int readcount;
-	private String ip;
-	private int ref;
-	private int re_step; 
-	private int re_level;
 
-	/*﻿ 자바빈의 메소드 선언 */  
+	private int num;  //글번호 프로퍼티란 값을 저장하기 위한 필드로 접근제어 private로 선언함 
+	private String writer; //작성자
+	private String subject; //글제목
+	private String email; //이메일
+	private String content; //내용
+	private String passwd; //비밀번호
+	private Timestamp reg_date;  // 작성일
+	private int readcount; //조회수
+	private String ip; //ip
+	private int ref; // 글의 그룹
+	private int re_step;  //글이 들어온 순서
+	private int re_level; //글 우선순위
 
-	    public void setNum(int num){ //프로퍼티에 접근하기위한 getXxx(), setXxx()메소드는 접근제어자를 public로 선언해서 작성
+	/*﻿ 자바빈의 메소드 선언
+	 	프로퍼티에 접근하기위한 getXxx(), setXxx()메소드는 접근제어자를 public로 선언해서 작성 */  
+
+	    public void setNum(int num){ 
 	     this.num=num;
 	    }
 	    public void setWriter (String writer) { // 작성자

@@ -7,22 +7,28 @@ import javax.naming.*;
 import java.util.*; 
 
 public class BoardDBBean {
+	/* 싱글턴으로 사용하는 클래스를 만들고 객체 생성 루틴을 구현(인스턴스를 하나 만들어 둔 후, 재사용에 활용 )*/ 
 
-	private static BoardDBBean instance = new BoardDBBean();
+	 private static BoardDBBean instance = new BoardDBBean(); // 2. instance 라는 static 변수를 초기화 한다.  
+	    public static BoardDBBean getInstance() { //3. getInstance라는 메소드에 의해서 계속 같은 인스턴스를 반환
+	        return instance; 
+	    } 
+
+	    private BoardDBBean()  { } //1. 생성자를 private로 만든다.(실수로 또다른 인스턴스 생성하는 것을 막기위함)
+
+	    /*커넥션 연결*/  
+	    private Connection getConnection() throws Exception { 
+
+	      //1. Obtain our environment naming context
+	      Context initCtx = new InitialContext();
+	      Context envCtx = (Context) initCtx.lookup("java:comp/env"); //2. 웹어플에 구성된 엔트리와 리소스 연결
+	      DataSource ds = (DataSource)envCtx.lookup("jdbc/orcl"); // 3. DataSource 를 검색 연결( "jdbc/orcl은 web.xml과 context.xml에 설정되어 있는 name값)
+	      return ds.getConnection(); // 4. 커넥션풀로부터 연결획득
+	    }    
 	
-	public static BoardDBBean getInstance() {
-		return instance;
-	
-	}
-	private BoardDBBean() {}
-	
-	private Connection getConnection() throws Exception {
-		Context initCtx = new InitialContext();
-		Context envCtx = (Context) initCtx.lookup("java:comp/env");
-		DataSource ds = (DataSource)envCtx.lookup("jdbc/orcl");
-		return ds.getConnection();
-	}
-	
+
+
+
 	
 	public void insertArticle(BoardDataBean article) throws Exception {
 		// -> writePro.jsp
