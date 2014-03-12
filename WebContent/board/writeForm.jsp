@@ -17,7 +17,7 @@
 			re_level = Integer.parseInt(request.getParameter("re_level")); //작성글 종류 - 새글 0, 답변 1, 답변의 답변 2
 		}
 		
-		String writer = (String)session.getAttribute("memId"); //작성자 정의
+		String writer = (String)session.getAttribute("memId"); //세션 확인 (글쓴이 )
 %>
 
 <body bgcolor="<%=bodyback_c%>">

@@ -1,10 +1,8 @@
-<%@ page import="ch11.logon.LogonDataBean"%>
-<%@ page import="ch11.logon.LogonDBBean"%>
-<%@ page contentType="text/html; charset=euc-kr"%>
-<%@ page import="board.BoardDBBean"%><!-- DTO -->
-<%@ page import="board.BoardDataBean"%><!-- DAO -->
-<%@ page import="java.util.List"%><!-- java.util > 인터페이스 List<E> -->
-<%@ page import="java.text.SimpleDateFormat"%><!-- java.text > 클래스 SimpleDateFormat -->
+<%@ page contentType="text/html; charset=utf-8"%>
+<%@ page import="ch11.logon.*"%>
+<%@ page import="board.*"%>
+<%@ page import="java.util.List"%>
+<%@ page import="java.text.SimpleDateFormat"%>
 <%@ include file="/view/color.jsp"%>
 
 
@@ -16,45 +14,41 @@
 
 <% /*스크립트릿(Scriptlet) 페이지번호 만들기 */
     String pageNum = request.getParameter("pageNum"); // pageNum값 요청하여 받기
+    
     if (pageNum == null) { // 초기 화면 받는값 없음
         pageNum = "1"; // 시작페이지 번호 1 설정
     }
 
-    int currentPage = Integer.parseInt(pageNum); //pageNum을 현재페이지(currentPage)로 선언,  pageNum 형변환(DTO로 받을 때 String로 값을 받았기 때문에 형변환을 필요)
+    int currentPage = Integer.parseInt(pageNum); //pageNum을 현재페이지(currentPage)로 선언, pageNum 형변환(DTO로 받을 때 String로 값을 받았기 때문에 형변환을 필요)
     int startRow = (currentPage - 1) * pageSize + 1; // 시작글 행번호 = (시작페이지-1)*한페이지의 글수 + 1  [currentPage가 1이면 1번글에서 시작, 2이면 11번 글에서 시작과 같이 시작]
     int endRow = currentPage * pageSize; // 마지막글 행번호 = 시작페이지*한페이지의 글수 [currentPage가 1이면 10번글이 끝. 2이면 20번글이 끝]
     int count = 0; // 데이터베이스 저장글의 총갯수
     int number = 0; // 행번호
-
+    
+    BoardDBBean dbPro = BoardDBBean.getInstance(); // BoardDBBean(DAO) 사용을 위한 인스턴스 생성
+    count = dbPro.getArticleCount(); //DAO의 getArticleCount() 메소드를 사용하여 데이터베이스 내 저장글의 총 갯수 가져오기
     List articleList = null; //현재 페이지에 보여줄 list를 선언 (한 번에 로드되는 글 목록)
-
-
-    BoardDBBean dbPro = BoardDBBean.getInstance(); // // BoardDBBean(DAO)에서 싱글인스턴스 방식으로 만들어 놓은 인스턴스를 불러옴
-    count = dbPro.getArticleCount(); //BoardDBBean에서 ArticleCount 가져오기
-                                     //DAO를 이용 데이터베이스 내 저장글의 총 갯수를 "select count(*) from board" 통해 전달
     if (count > 0) {  
         articleList = dbPro.getArticles(startRow, endRow); // 확인할 페이지의 범위
        // getArticles(startRow, endRow) => startRow와 endRow사이의 글들의 list에 그룹화하는 메소드             
-    }
+    }    
 
-   number = count-(currentPage-1)*pageSize; // 여기의 number은 목록의 행번호임 (글번호와 혼동하지 않도록!!)
-   //number= 총글 갯수-(현재페이지-1)*한페이지에 보여주는 글의 행수 (즉 넘버는 보여주는 페이지에서의 숫자화시킨것중  가장 큰 숫자가 된다.)
-
-
-   /* 로그인 확인 */
-   boolean logged = false;
-   if(session.getAttribute("memId") !=null){
-	   logged = true;
-   }
-	
-	/* 회원등급확인(관리자,일반인...등)  */
-	String id = (String)session.getAttribute("memId");  
-	LogonDBBean manager = LogonDBBean.getInstance();
-	LogonDataBean c = manager.getMember(id); // 로그인 되어 있는 사용자 정보 담기
-	String grade = c.getGrade();
-                     //회원등급 구분을 위해 member.setGrade(rs.getString("grade"));를 LogonDBBean에 추가함
+   		number = count-(currentPage-1)*pageSize; // 여기의 number은 목록의 행번호임 (글번호와 혼동하지 않도록!!)
+   		//number= 총글 갯수-(현재페이지-1)*한페이지에 보여주는 글의 행수 (즉 넘버는 보여주는 페이지에서의 숫자화시킨것중  가장 큰 숫자가 된다.)   
+ 
+/* 로그인 및 회원등급 체크 */   		
+  		String id = (String)session.getAttribute("memId"); //session이므로 별도의 requset 없이 사용 
+ 	 	LogonDBBean manager = LogonDBBean.getInstance(); //DAO의 메소드 사용을 위한 인스턴스 생성
+ 	 	LogonDataBean c = manager.getMember(id); // 로그인 되어 있는 사용자 정보 담기  		
+ 	 	String grade =""; // 지역 변수는 초기화 해야된다.
+ 	 	
+ 		boolean logged = false; 
+		if (session.getAttribute("memId") != null) {
+			logged = true;
+			grade = c.getGrade();	//지역변수
+		}
+		
 %>
-
 
 <html>
 <head>
@@ -64,34 +58,36 @@
 
 <b>글목록(전체 글:<%=count%>)
 </b>
-<!-- DAO 메소드를 통하여 전체글수(count) 가져오기 -->
 
 <!-- 로그인 여부에 따른 글쓰기와 로그아웃 연동 -->
 <table width="700">
 	<tr>
-		<td><%=session.getAttribute("memId")%>님 접속중</td>
+	<%
+	if (logged) { // 로그인 상태면
+	%>
+		<td><%=id%> <%=grade%>님 접속중</td>
 		<td align="right" bgcolor="<%=value_c%>">
-			<%
-				if (logged) { // 로그인 상태면
-			%>
-			 <a href="writeForm.jsp">글쓰기</a>
-			 <a href="../member/logout.jsp">로그아웃</a>
-			<%
-				} else {// 로그인상태 아니면
-			%> <!-- nothng --> <%
-				}
-			%>
+			<a href="writeForm.jsp">글쓰기</a> <a href="/jsp/member/logout.jsp">로그아웃</a>
+		</td> 
+	<%
+ 	} else {// 로그인상태 아니면
+ 	%> <td>guest 접속중</td>
+		<td align="right" bgcolor="<%=value_c%>">글쓰기 로그아웃 기능 사용불가
 		</td>
+	<%
+		}
+	%>
 	</tr>
 </table>
 
-
+<!-- 글목록 불러오기 -->
 <%
 	if (count == 0) { //글이 없다면 (0일 경우 저장글 없음)
 %>
 <table border="1" cellpadding="0" cellspacing="0">
 	<tr>
 		<td align="center">게시판에 저장된 글이 없습니다.</td>
+	</tr>
 </table>
 
 <%
@@ -108,8 +104,8 @@
 	</tr>
 	<%
 		/* 글의 우선순위(Re_level) 설정하기 ※ arcticleList는 한 번에 로드되는 글 목록 */
-			for (int i = 0; i < articleList.size(); i++) { //articleList의 갯수만큼 반복
-				BoardDataBean article = (BoardDataBean) articleList.get(i); //articleList에 있는 DTO를 하나씩 꺼내는 부분 [DAO의 List getArticles() 메소드에서 articleList = new ArrayList(end);로 변환하였던 것을 원래 타입으로 다시 만듬]
+		for (int i = 0; i < articleList.size(); i++) { //articleList의 갯수만큼 반복
+			BoardDataBean article = (BoardDataBean) articleList.get(i); //DAO의 List getArticles() 메소드에서 articleList = new ArrayList(end);로 변환하였던 것을 원래 타입으로 다시 만듬]
 	%>
 	<tr height="30">
 		<td align="center" width="50"><%=number--%></td>
@@ -144,7 +140,7 @@
 	<%
  		} else {// 일반유저면 비밀번호 위치로 프롬프트 이동
  	%>
- 			<a href="passCheckForm.jsp?num=<%=article.getNum()%>&pageNum=<%=currentPage%>">	<%=article.getSubject()%></a>
+ 			<a href="pwch.jsp?num=<%=article.getNum()%>&pageNum=<%=currentPage%>">	<%=article.getSubject()%></a>
 	<%
  	}
 	 %> 
