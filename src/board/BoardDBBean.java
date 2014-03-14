@@ -19,41 +19,48 @@ public class BoardDBBean {
 	    /*커넥션 연결*/  
 	    private Connection getConnection() throws Exception { 
 
-	      //1. Obtain our environment naming context
-	      Context initCtx = new InitialContext();
-	      Context envCtx = (Context) initCtx.lookup("java:comp/env"); //2. 웹어플에 구성된 엔트리와 리소스 연결
-	      DataSource ds = (DataSource)envCtx.lookup("jdbc/orcl"); // 3. DataSource 를 검색 연결( "jdbc/orcl은 web.xml과 context.xml에 설정되어 있는 name값)
+	      /*1. Obtain our environment naming context
+		    	초기환경 정보를 API인 InitialContext를 사용 → initCtx에 기억
+		    	웹어플에 구성된 엔트리와 리소스 참조하여 환경구체화 → envCtx에 기억
+		    	DataSource 자원을 참조하여 DB 자원 가져오기 → ds에 기억*/
+	    	
+	      Context initCtx = new InitialContext(); // 초기 상황정보 setting 
+	      Context envCtx = (Context) initCtx.lookup("java:comp/env"); //2. 상황관련 자원 가져오기(웹어플에 구성된 엔트리와 리소스 연결) 
+	      DataSource ds = (DataSource)envCtx.lookup("jdbc/orcl"); // 3. DB관련 자원가져오기("jdbc/orcl은 web.xml과 context.xml에 설정되어 있는 name값)
 	      return ds.getConnection(); // 4. 커넥션풀로부터 연결획득
-	    }    
+	    }
 	
-
-
-
-	
+	/*게시판 구현에 필요한 메소드들
+	 * 글갯수 getArticleCount()
+	 * 글넣기 insertArticle(BoardDataBean article)
+	 * 글목록 List getArticles(int start, int end)
+	 * */
+	    
 	public void insertArticle(BoardDataBean article) throws Exception {
-		// -> writePro.jsp
-		
-		Connection conn = null;
+		//→ writePro.jsp
+
+		/*db자원의 연계를 통한 값 가져오기 필드선언*/
+		Connection conn = null; //연결값 초기화
 		PreparedStatement pstmt = null; // Query를 담을 pstmt 선언 및 초기화
 		ResultSet rs = null; // ResultSet (데이터베이스에 쿼리를 날린 결과를 가져오기)
-		
+		/*필요 데이터의 변수선언*/
 		int num = article.getNum(); // 글의 고유번호
 		int ref = article.getRef(); // 글의 그룹
 		int re_step = article.getRe_step(); // 답글 달린 순서
 		int re_level = article.getRe_level(); //글 우선순위 0-새글 , 1-답글 , 2-답글의 답글
-		int number = 0; 
-		
+		int FirstNum = 0; //최초글 번호
+		/*쿼리 변수 선언*/
 		String sql="";
 		
 		try {
-			conn = getConnection(); 
+			conn = getConnection(); //커넥션 풀로 연결
 			pstmt = conn.prepareStatement("select max(num) from board"); // board테이블에서 최대값 
 			rs = pstmt.executeQuery();//쿼리 실행
 			
 			if (rs.next())
-				number=rs.getInt(1)+1;	// 0+1=1:답글   ,   1+1=2:답글의 답글
+				FirstNum=rs.getInt(1)+1; //글이 있을경우는 마지막글번호+1 [getInt(1)-column의 첫번째 지정되어 있는 Int값 가져오기]	
 			else
-				number=1; // 답글
+				FirstNum=1; // 최초글 번호
 			
 			if (num!=0) // 새글이 아닐때
 			{ 
@@ -64,10 +71,12 @@ public class BoardDBBean {
 				pstmt.setInt(1, ref); // 글의 그룹
 				pstmt.setInt(2, re_step); // 답글 달린 순서
 				pstmt.executeUpdate();
+				
 				re_step=re_step+1; // 답글 달린 순서가 1 늘어남
 				re_level=re_level+1; // 현재 글이 몇번째 답글인지 나타냄
+				
 			}else{ //새글일때
-				ref=number;
+				ref=FirstNum; 
 				re_step=0; // 새글이므로 답글 없음
 				re_level=0; // 0은 새글
 			}
@@ -75,7 +84,7 @@ public class BoardDBBean {
 
 			//시퀀스의 증가값 넣기 insert into 테이블명 values (시퀀스명.NEXTVAL,'값'); 
 			sql = "insert into board(num,writer,email,subject,passwd,reg_date,";
-			sql+="ref,re_step,re_level,content,ip) values(board_seq.NEXTVAL,?,?,?,?,?,?,?,?,?,?)";
+			sql+= "ref,re_step,re_level,content,ip) values(board_seq.NEXTVAL,?,?,?,?,?,?,?,?,?,?)";
 				
 			pstmt = conn.prepareStatement(sql);
 				
@@ -202,7 +211,7 @@ public class BoardDBBean {
 					// start와 end로 제한하여 ref는 내림차순으로 , re_step은 오름차순으로 정렬한다
 					"select num,writer,email,subject,passwd,reg_date,ref,re_step,re_level,content,ip,readcount,r "
 					+
-					"from (select num,writer,email,subject,passwd,reg_date,ref,re_step,re_level,content,ip,readcount,rownum r " +
+					"from (select num,writer,email,subject,passwd,reg_date,ref,re_step,re_level,content,ip,readcount,Number r " +
 					"from (select num,writer,email,subject,passwd,reg_date,ref,re_step,re_level,content,ip,readcount " +
 					"from where writer=? order by reg_date) order by ref desc, re_step asc ) where r >= ? and r <= ? ");
 	 
@@ -264,8 +273,7 @@ public class BoardDBBean {
 				"update board set readcount=readcount+1 where num = ?"); //조회수 증가시켜 저장
 				pstmt.setInt(1, num); //증가된 조회수 set
 				pstmt.executeUpdate(); // 증가된 조회수를 데이터베이스에 변경, 결과 보기
-				pstmt = conn.prepareStatement(
-				"select * from board where num = ?"); // num에 해당하는 레코드를 불러온다
+				pstmt = conn.prepareStatement("select * from board where num = ?"); // num에 해당하는 레코드를 불러온다
 				pstmt.setInt(1, num);
 				rs = pstmt.executeQuery();
 				if (rs.next()) 
@@ -388,15 +396,13 @@ public class BoardDBBean {
 		int x=-1;
 		try {
 			conn = getConnection();
-			pstmt = conn.prepareStatement(
-			"select passwd from board where num = ?");
+			pstmt = conn.prepareStatement("select passwd from board where num = ?");
 			pstmt.setInt(1, num);
 			rs = pstmt.executeQuery();
 			if(rs.next()){
 				dbpasswd= rs.getString("passwd");
 				if(dbpasswd.equals(passwd)){
-					pstmt = conn.prepareStatement(
-					"delete from board where num=?");
+					pstmt = conn.prepareStatement("delete from board where num=?");
 					pstmt.setInt(1, num);
 					pstmt.executeUpdate();
 					x= 1; 
@@ -417,20 +423,25 @@ public int pwchArticle(int num, String passwd) throws Exception { //비밀번호 확�
 	Connection conn = null;
 	PreparedStatement pstmt = null;
 	ResultSet rs= null;
-	String dbpasswd="";
+	String dbpasswd="";	
+	
 	int x=-1;
+	
 	try {
-		conn = getConnection();
-		pstmt = conn.prepareStatement(
-		"select passwd from board where num = ?");
-		pstmt.setInt(1, num);
-		rs = pstmt.executeQuery();
+		conn = getConnection(); //데이터 자원 연결
+		pstmt = conn.prepareStatement("select passwd from board where num = ?"); //필요 데이터 조회 setting
+		pstmt.setInt(1, num); //
+		rs = pstmt.executeQuery(); //쿼리 실행 및 rs 준비
+		
 		if(rs.next()){
-			dbpasswd= rs.getString("passwd");
-			if(dbpasswd.equals(passwd)){
-				x= 1; 
+			dbpasswd= rs.getString("passwd"); //db에서 조회하여 가져온 값을 dbpasswd에 넣고			
+				if(dbpasswd.equals(passwd)){ // 받은 passwd와 비교
+					x= 1; // 같으면 1			
+
+
+
 			}else
-				x= 0; 
+				x= 0; // 다르면 0
 		}
 	} catch(Exception ex) {
 		ex.printStackTrace();

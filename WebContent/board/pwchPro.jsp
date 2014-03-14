@@ -1,51 +1,27 @@
-<%@ page contentType="text/html;charset=euc-kr"%>
-<%@ include file="/view/color.jsp"%>
+<%@ page contentType="text/html;charset=euc-kr" %>
+<%@ page import = "board.BoardDBBean" %>
+<%@ page import = "java.sql.Timestamp" %>
+
+<% request.setCharacterEncoding("euc-kr");%>
 
 <%
-	int num = Integer.parseInt(request.getParameter("num"));
-	String pageNum = request.getParameter("pageNum");
-	String password = request.getParameter("password");
-	
+  int num = Integer.parseInt(request.getParameter("num"));
+  String pageNum = request.getParameter("pageNum");
+  String passwd = request.getParameter("passwd");
+
+  BoardDBBean dbPro = BoardDBBean.getInstance();
+  int check = dbPro.pwchArticle(num, passwd);
+
+  if(check==1){
 %>
-<html>
-<head>
-<title>게시판</title>
-<link href="style.css" rel="stylesheet" type="text/css">
-
-<script language="JavaScript">
-<!--
-	function deleteSave() {
-		if (document.delForm.passwd.value == '') {
-			alert("비밀번호를 입력하십시요.");
-			document.delForm.passwd.focus();
-			return false;
-		}
-	}
-// -->
-</script>
-</head>
-
-<body bgcolor="<%=bodyback_c%>">
-	<center>
-		<b>글삭제</b> <br>
-		<form method="POST" name="delForm" action="0;url=content.jsp?Num=<%=num%>&pageNum=<%=pageNum%>" onsubmit="return deleteSave()">
-			<table border="1" align="center" cellspacing="0" cellpadding="0"
-				width="360">
-				<tr height="30">
-					<td align=center bgcolor="<%=value_c%>"><b>비밀번호를 입력해 주세요.</b></td>
-				</tr>
-				<tr height="30">
-					<td align=center>비밀번호 : <input type="password" name="passwd" size="8" maxlength="12"> 
-						<input type="hidden" name="num" value="<%=num%>">
-						</td>
-				</tr>
-				<tr height="30">
-					<td align=center bgcolor="<%=value_c%>">
-					<input type="submit" value="글읽기"> 
-					<input type="button" value="글목록" onclick="document.location.href='list.jsp?pageNum=<%=pageNum%>'">
-					</td>
-				</tr>
-			</table>
-		</form>
-</body>
-</html>
+	  <meta http-equiv="Refresh" content="0;url=list.jsp?pageNum=<%=pageNum%>" >
+<% }else{%>
+       <script language="JavaScript">      
+       <!--      
+         alert("비밀번호가 맞지 않습니다");
+         history.go(-1);
+       -->
+      </script>
+<%
+    }
+ %>

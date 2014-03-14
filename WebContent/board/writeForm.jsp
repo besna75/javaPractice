@@ -56,7 +56,9 @@
 		</tr>
 		<tr>
 			<td width="70" bgcolor="<%=value_c%>" align="center">이 름</td>
-			<td width="330"><input type="text" size="10" maxlength="10" name="writer" value="<%=writer%>" disabled></td> 
+			<td width="330"><input type="text" size="10" maxlength="10" name="writer" value="<%=writer%>" disabled>
+				<input type="hidden" name="writer" value="<%=writer%>"> <!-- 작성자명 숨김처리로 정보보내기 -->
+			</td> 
 			<!-- 작성자명 가져오기, disabled로 이름변경막기 -->
 		</tr>
 		<tr>
@@ -76,7 +78,9 @@
 		</tr>
 		<tr>
 			<td width="70" bgcolor="<%=value_c%>" align="center">Email</td>
-			<td width="330"><input type="text" size="40" maxlength="30"	name="email" value="<%=email%>"></td>
+			<td width="330"><input type="text" size="40" maxlength="30"	name="email" value="<%=email%>">
+			<input type="hidden" name="writer" value="<%=email%>">
+			</td>
 		</tr>
 		<tr>
 			<td width="70" bgcolor="<%=value_c%>" align="center">내 용</td>

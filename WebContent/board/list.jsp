@@ -6,36 +6,38 @@
 <%@ include file="/view/color.jsp"%>
 
 
-
-<%! /* 선언문(Declaration) */
-    int pageSize = 10; // 한 페이지의 글 목록수 지정
+<!-- 선언문(Declaration) -->
+<%! 
+    int pageRow = 10; // 한 페이지의 행(글목록)수 지정
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm"); // SimpleDateFormat 클래스 사용한 작성일시 객체생성  
 %>
+<!-- 스크립트릿(Scriptlet) -->
+<% 
+/* 페이지번호 setting */
+    String pageNum = request.getParameter("pageNum"); // pageNum 선언. 하단의 번호 클릭 시 pageNum값 요청하여 받기    
+	    if (pageNum == null) { // 초기 화면 받는값 없음
+	        pageNum = "1"; // 시작페이지 번호 1 설정
+	    }
 
-<% /*스크립트릿(Scriptlet) 페이지번호 만들기 */
-    String pageNum = request.getParameter("pageNum"); // pageNum값 요청하여 받기
-    
-    if (pageNum == null) { // 초기 화면 받는값 없음
-        pageNum = "1"; // 시작페이지 번호 1 설정
-    }
+	    int currentPage = Integer.parseInt(pageNum); //pageNum을 현재페이지(currentPage)로 선언, pageNum 형변환(DTO로 받을 때 String로 값을 받았기 때문에 형변환을 필요)
+	    int startRow = (currentPage - 1) * pageRow + 1; // 시작글 행번호 = (시작페이지-1)*한페이지의 글수 + 1  [currentPage가 1이면 1번글에서 시작, 2이면 11번 글에서 시작과 같이 시작]
+	    int endRow = currentPage * pageRow; // 마지막글 행번호 = 시작페이지*한페이지의 글수 [currentPage가 1이면 10번글이 끝. 2이면 20번글이 끝]
+	    int count = 0; // 데이터베이스 저장글의 총갯수
+	    int rowNum = 0; // 행번호  			
 
-    int currentPage = Integer.parseInt(pageNum); //pageNum을 현재페이지(currentPage)로 선언, pageNum 형변환(DTO로 받을 때 String로 값을 받았기 때문에 형변환을 필요)
-    int startRow = (currentPage - 1) * pageSize + 1; // 시작글 행번호 = (시작페이지-1)*한페이지의 글수 + 1  [currentPage가 1이면 1번글에서 시작, 2이면 11번 글에서 시작과 같이 시작]
-    int endRow = currentPage * pageSize; // 마지막글 행번호 = 시작페이지*한페이지의 글수 [currentPage가 1이면 10번글이 끝. 2이면 20번글이 끝]
-    int count = 0; // 데이터베이스 저장글의 총갯수
-    int number = 0; // 행번호
-    
-    BoardDBBean dbPro = BoardDBBean.getInstance(); // BoardDBBean(DAO) 사용을 위한 인스턴스 생성
-    count = dbPro.getArticleCount(); //DAO의 getArticleCount() 메소드를 사용하여 데이터베이스 내 저장글의 총 갯수 가져오기
+
+/* 글목록 setting : 총갯수, articleList */
+    BoardDBBean dbPro = BoardDBBean.getInstance(); // DAO 싱글턴 인스턴스 사용
+    count = dbPro.getArticleCount(); //DAO 메소드를 사용, 데이터베이스 내 저장글의 총 갯수 가져오기
     List articleList = null; //현재 페이지에 보여줄 list를 선언 (한 번에 로드되는 글 목록)
-    if (count > 0) {  
-        articleList = dbPro.getArticles(startRow, endRow); // 확인할 페이지의 범위
-       // getArticles(startRow, endRow) => startRow와 endRow사이의 글들의 list에 그룹화하는 메소드             
-    }    
-
-   		number = count-(currentPage-1)*pageSize; // 여기의 number은 목록의 행번호임 (글번호와 혼동하지 않도록!!)
-   		//number= 총글 갯수-(현재페이지-1)*한페이지에 보여주는 글의 행수 (즉 넘버는 보여주는 페이지에서의 숫자화시킨것중  가장 큰 숫자가 된다.)   
- 
+	    if (count > 0) {  
+	        articleList = dbPro.getArticles(startRow, endRow); // 확인할 페이지의 범위
+	       // getArticles(startRow, endRow) => startRow와 endRow사이의 글들의 list에 그룹화하는 메소드             
+	    }    
+	    rowNum = count-(currentPage-1)*pageRow; //목록의 행번호임 (글번호와 혼동하지 않도록!!) rowNum= 총글 갯수-(현재페이지-1)*한페이지에 보여주는 글의 행수
+	 	// 글 번호. 글 갯수가 11 : 페이지 1일때 10, 페이지2일때 1
+	 	 
+	 	
 /* 로그인 및 회원등급 체크 */   		
   		String id = (String)session.getAttribute("memId"); //session이므로 별도의 requset 없이 사용 
  	 	LogonDBBean manager = LogonDBBean.getInstance(); //DAO의 메소드 사용을 위한 인스턴스 생성
@@ -57,8 +59,8 @@
 </head>
 <center>
 <b>글목록(전체 글:<%=count%>)</b>
-	
-	<!-- 로그인 여부에 따른 글쓰기와 로그아웃 연동 -->
+
+<!-- 로그인 여부에 따른 글쓰기와 로그아웃 연동 -->
 	<table width="710" cellpadding="0" cellspacing="0" margin="0">
 		<tr>
 		<%
@@ -71,7 +73,7 @@
 		<%
 	 	} else {// 로그인상태 아니면
 	 	%> <td bgcolor="<%=value_c%>">guest 접속중</td>
-			<td align="right" bgcolor="<%=value_c%>">글쓰기 로그아웃 기능 사용불가
+			<td align="right" bgcolor="<%=value_c%>">글쓰기 로그아웃
 			</td>
 		<%
 			}
@@ -79,7 +81,7 @@
 		</tr>
 	</table>
 	
-	<!-- 글목록 불러오기 -->
+<!-- 글목록 불러오기 -->
 	<%
 		if (count == 0) { //글이 없다면 (0일 경우 저장글 없음)
 	%>
@@ -87,8 +89,7 @@
 		<tr>
 			<td align="center">게시판에 저장된 글이 없습니다.</td>
 		</tr>
-	</table>
-	
+	</table>	
 	<%
 		} else { //글 있다면
 	%>
@@ -101,18 +102,19 @@
 			<td align="center" width="50">조 회</td>
 			<td align="center" width="100">IP</td>
 		</tr>
-		<%
-			/* 글의 우선순위(Re_level) 설정하기 ※ arcticleList는 한 번에 로드되는 글 목록 */
+		<% /* article에 정보setting 
+			
+			arcticleList는 한 번에 로드되는 글 목록 */
 			for (int i = 0; i < articleList.size(); i++) { //articleList의 갯수만큼 반복
-				BoardDataBean article = (BoardDataBean) articleList.get(i); //DAO의 List getArticles() 메소드에서 articleList = new ArrayList(end);로 변환하였던 것을 원래 타입으로 다시 만듬]
+				BoardDataBean article = (BoardDataBean) articleList.get(i); 		
 		%>
 		<tr height="30">
-			<td align="center" width="50"><%=number--%></td>
-			<!-- number : 글의 행번호 -->
+			<td align="center" width="50"><%=rowNum--%></td>
+			<!-- rowNum : 글의 행번호 -->
 			<td width="250">
 			<%	// 답글공백 설정하기
 				int wid = 0; //공백을 인트화
-	
+				/* 글의 우선순위(Re_level) 설정하기 */	
 				if (article.getRe_level() > 0) { // DTO에서 글의 레벨을 뽑아오는 메소드(getRe_level = 글의 우선순위)를 가져와서 사용함. level이 0보다 크면 
 					wid = 5 * (article.getRe_level()); //레벨만큼의 공백을 늘리고, 답글이라고 표시하는 이미지삽입
 			%> 
@@ -175,11 +177,11 @@
 	<%
 		/* 페이지 이전 다음 만들기 
 		int count : 글의 총 갯수
-		int pageSize : 한 페이지의 글 목록 갯수
+		int pageRow : 한 페이지의 글 목록 갯수
 		int currentPage : 현 페이지 넘버 */
 	
 		if (count > 0) {
-			int pageCount = count / pageSize + (count % pageSize == 0 ? 0 : 1);
+			int pageCount = count / pageRow + (count % pageRow == 0 ? 0 : 1);
 			/* 한페이지수 = 전체글수/한페이지에 들어갈 글수 + (전체글수%한페이지에들어갈 글 수가 0인가 확인)
 			 pageCount는 즉 전체글을 사이즈로 나누고 + 전체글%사이즈로 딱 떨어지면 0 안떨어지면 1을 더한다
 			  즉 100개의 글이 있고 한페이지에 보여주는 글이 10개라면, 페이지수(pageCount)는 10이된다 */

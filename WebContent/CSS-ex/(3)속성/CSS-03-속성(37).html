@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" >
+<head>
+	<title>border-collapse 속성을 이용한 border 설정하기</title>
+	<meta http-equiv="content-type" content="text/html; charset=euc-kr" />
+	<style type="text/css">
+		h2 { background-color:silver;}
+		table, th, td {	border:1px solid blue; }
+		.separate { border-collapse:separate; }
+		.collapse { border-collapse:collapse; }
+	</style>
+</head>
+<body>
+	<h2>border 분리 모델의 적용</h2>
+	<table class="separate">
+		<tr>
+			<th>교재명</th>
+			<th>가격</th>
+		</tr>
+		<tr>
+			<td>시맨틱 마크업</td>
+			<td>28,000원</td>
+		</tr>
+		<tr>
+			<td>웹 표준의 모든 것</td>
+			<td>35,000원</td>
+		</tr>
+		<tr>
+			<td>CSS 파헤치기</td>
+			<td>30,000원</td>
+		</tr>
+		<tr>
+			<td>DOM 그리고 스크립트</td>
+			<td>33,000원</td>
+		</tr>
+	</table>
+	
+	<h2>border 병합 모델의 적용</h2>
+	<table class="collapse">
+		<tr>
+			<th>교재명</th>
+			<th>가격</th>
+		</tr>
+		<tr>
+			<td>시맨틱 마크업</td>
+			<td>28,000원</td>
+		</tr>
+		<tr>
+			<td>웹 표준의 모든 것</td>
+			<td>35,000원</td>
+		</tr>
+		<tr>
+			<td>CSS 파헤치기</td>
+			<td>30,000원</td>
+		</tr>
+		<tr>
+			<td>DOM 그리고 스크립트</td>
+			<td>33,000원</td>
+		</tr>
+	</table>
+</body>
+</html>

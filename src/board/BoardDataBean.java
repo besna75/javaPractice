@@ -2,10 +2,10 @@ package board;
 import java.sql.Timestamp;
 
 public class BoardDataBean{
-	/*﻿ 자바빈의 프로퍼티(멤버변수) 선언 */ 
-
-
-	private int num;  //글번호 프로퍼티란 값을 저장하기 위한 필드로 접근제어 private로 선언함 
+	/*﻿ 자바빈의 프로퍼티(멤버변수) 선언
+	 * 프로퍼티란 값을 저장하기 위한 필드로 접근제어 private로 선언함  */ 
+	
+	private int num;  //글번호 
 	private String writer; //작성자
 	private String subject; //글제목
 	private String email; //이메일
@@ -19,7 +19,7 @@ public class BoardDataBean{
 	private int re_level; //글 우선순위
 
 	/*﻿ 자바빈의 메소드 선언
-	 	프로퍼티에 접근하기위한 getXxx(), setXxx()메소드는 접근제어자를 public로 선언해서 작성 */  
+	 * 프로퍼티에 접근하기위한 getXxx(), setXxx()메소드는 접근제어자를 public로 선언해서 작성 */  
 
 	    public void setNum(int num){ 
 	     this.num=num;

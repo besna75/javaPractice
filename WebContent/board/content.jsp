@@ -30,7 +30,7 @@
 
    try{
       BoardDBBean dbPro = BoardDBBean.getInstance();
-      BoardDataBean article = dbPro.getArticle(num);
+      BoardDataBean article = dbPro.getArticle(num); //글번호를 변수로 하여 글 불러오기
   
 	  int ref=article.getRef();
 	  int re_step=article.getRe_step();
@@ -53,7 +53,7 @@
 		<td><%=id%> <%=grade%>님 접속중 <br /> 준회원(grade2)글내용보기</td>		
 		
 	<%}else {// 로그인상태 아니면
- 	%> <td>guest 접속중 <br /> 글내용을 보려면 로그인해주세요.</td>
+ 	%> <td>guest 접속중 <br /> 글내용을 보려면 비밀번호를 확인해주세요.</td>
 	<%
 		}
 	%>

@@ -14,15 +14,16 @@
 -->
 
 <jsp:useBean id="article" scope="page" class="board.BoardDataBean">
+<!-- ↑ DTO(BoardDataBean)을 참조하여 article이라는 Bean을 생성 
+	 ↓ article의 속성 set/get--> 
    <jsp:setProperty name="article" property="*"/>
 </jsp:useBean>
- 
 <%
     article.setReg_date(new Timestamp(System.currentTimeMillis()) );
 	article.setIp(request.getRemoteAddr());
 
     BoardDBBean dbPro = BoardDBBean.getInstance();
-    dbPro.insertArticle(article);
+    dbPro.insertArticle(article);  // DAO(BoardDBBean)의 메서드를 호출하여 DB에 저장 
 
-    response.sendRedirect("list.jsp");
+    response.sendRedirect("list.jsp"); // 수행한 것에 대한 전달
 %>
