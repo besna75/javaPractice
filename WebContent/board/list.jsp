@@ -20,7 +20,7 @@
 	    }
 
 	    int currentPage = Integer.parseInt(pageNum); //pageNum을 현재페이지(currentPage)로 선언, pageNum 형변환(DTO로 받을 때 String로 값을 받았기 때문에 형변환을 필요)
-	    int startRow = (currentPage - 1) * pageRow + 1; // 시작글 행번호 = (시작페이지-1)*한페이지의 글수 + 1  [currentPage가 1이면 1번글에서 시작, 2이면 11번 글에서 시작과 같이 시작]
+	    int startRow = (currentPage - 1) * pageRow + 1; // 시작글 행번호 = (시작페이지-1)*페이지행 + 1  [currentPage가 1이면 1번글에서 시작, 2이면 11번 글에서 시작과 같이 시작]
 	    int endRow = currentPage * pageRow; // 마지막글 행번호 = 시작페이지*한페이지의 글수 [currentPage가 1이면 10번글이 끝. 2이면 20번글이 끝]
 	    int count = 0; // 데이터베이스 저장글의 총갯수
 	    int rowNum = 0; // 행번호  			
@@ -115,8 +115,8 @@
 			<%	// 답글공백 설정하기
 				int wid = 0; //공백을 인트화
 				/* 글의 우선순위(Re_level) 설정하기 */	
-				if (article.getRe_level() > 0) { // DTO에서 글의 레벨을 뽑아오는 메소드(getRe_level = 글의 우선순위)를 가져와서 사용함. level이 0보다 크면 
-					wid = 5 * (article.getRe_level()); //레벨만큼의 공백을 늘리고, 답글이라고 표시하는 이미지삽입
+				if (article.getPage_step() > 0) { // DTO에서 글의 레벨을 뽑아오는 메소드(getRe_level = 글의 우선순위)를 가져와서 사용함. level이 0보다 크면 
+					wid = 5 * (article.getPage_step()); //레벨만큼의 공백을 늘리고, 답글이라고 표시하는 이미지삽입
 			%> 
 					<img src="images/level.gif" width="<%=wid%>" height="16"> <img src="images/re.gif"> <%
 	 		} else {

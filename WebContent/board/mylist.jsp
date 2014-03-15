@@ -1,12 +1,12 @@
 <%@ page contentType = "text/html; charset=euc-kr" %>
-<%@ page import = "test.bean.BoardDBBean" %>
-<%@ page import = "test.bean.BoardDataBean" %>
+<%@ page import = "board.BoardDBBean" %>
+<%@ page import = "board.BoardDataBean" %>
 <%@ page import = "java.util.List" %>
 <%@ page import = "java.text.SimpleDateFormat" %>
 <%@ include file="/view/color.jsp"%>
 
 <%!
-    int pageSize = 10;
+    int pageRow = 10;
     SimpleDateFormat sdf = 
         new SimpleDateFormat("yyyy-MM-dd HH:mm");
 %>
@@ -18,19 +18,20 @@
     }
 
     int currentPage = Integer.parseInt(pageNum);
-    int startRow = (currentPage - 1) * pageSize + 1;
-    int endRow = currentPage * pageSize;
+    int startRow = (currentPage - 1) * pageRow + 1;
+    int endRow = currentPage * pageRow;
     int count = 0;
     int number=0;
 
     List articleList = null;
     BoardDBBean dbPro = BoardDBBean.getInstance();
-    count = dbPro.getArticleCount();
+    String id = (String)session.getAttribute("memId");
+    count = dbPro.getMyArticleCount(id);
     if (count > 0) {
-        articleList = dbPro.getArticles(startRow, endRow);
+articleList = dbPro.getMyArticles(startRow, endRow,id);
     }
 
-	number=count-(currentPage-1)*pageSize;
+	number=count-(currentPage-1)*pageRow;
 %>
 <html>
 <head>
@@ -40,15 +41,14 @@
 
 <body bgcolor="<%=bodyback_c%>">
 <center><b>글목록(전체 글:<%=count%>)</b>
-<%if(session.getAttribute("memId")!=null){ %>
+<% if(session.getAttribute("memId") != null){ %>
 <table width="700">
 <tr>
     <td align="right" bgcolor="<%=value_c%>">
     <a href="writeForm.jsp">글쓰기</a>
     </td>
 </table>
-<%}%>
-
+<%} %>
 <%
     if (count == 0) {
 %>
@@ -79,7 +79,7 @@
 	<%
 	      int wid=0; 
 	      if(article.getRe_level()>0){
-	        wid=5*(article.getRe_level());
+	        wid=20*(article.getRe_level());
 	%>
 	  <img src="images/level.gif" width="<%=wid%>" height="16">
 	  <img src="images/re.gif">
@@ -103,7 +103,7 @@
 
 <%
     if (count > 0) {
-        int pageCount = count / pageSize + ( count % pageSize == 0 ? 0 : 1);
+        int pageCount = count / pageRow + ( count % pageRow == 0 ? 0 : 1);
 		 
         int startPage = (int)(currentPage/10)*10+1;
 		int pageBlock=10;
@@ -111,14 +111,14 @@
         if (endPage > pageCount) endPage = pageCount;
         
         if (startPage > 10) {    %>
-        <a href="list.jsp?pageNum=<%= startPage - 10 %>">[이전]</a>
+        <a href="mylist.jsp?pageNum=<%= startPage - 10 %>">[이전]</a>
 <%      }
         for (int i = startPage ; i <= endPage ; i++) {  %>
-        <a href="list.jsp?pageNum=<%= i %>">[<%= i %>]</a>
+        <a href="mylist.jsp?pageNum=<%= i %>">[<%= i %>]</a>
 <%
         }
         if (endPage < pageCount) {  %>
-        <a href="list.jsp?pageNum=<%= startPage + 10 %>">[다음]</a>
+        <a href="mylist.jsp?pageNum=<%= startPage + 10 %>">[다음]</a>
 <%
         }
     }
